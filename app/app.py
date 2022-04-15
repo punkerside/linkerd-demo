@@ -14,7 +14,7 @@ def status():
 
 @app.route('/mesh/<name>')
 def get_remote(name):
-  return requests.get('http://' + str(name) + ':5000/status').content
+  return requests.get('http://' + str(name) + '/status',timeout=3).content
 
 if __name__ == '__main__':
    app.run(debug = True)
