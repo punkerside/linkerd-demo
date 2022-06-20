@@ -1,3 +1,26 @@
+## **Prerrequisitos**
+
+### Binarios instalador:
+
+* [Instalar Docker](https://docs.docker.com/engine/install/)
+* [Instalar Minikube](https://minikube.sigs.k8s.io/docs/start/)
+* [Instalar Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+* [Instalar Linkerd](https://linkerd.io/2.11/getting-started/)
+
+### Cuentas creadas:
+
+* [Usuario DockerHub](https://hub.docker.com/signup)
+
+
+## **Variables**
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|----------|
+| `DOCKER_USER` | Usuario dockerhub | string | | yes |
+| `DOCKER_PASS` | Contraseña dockerhub | string | | yes |
+
+## **Uso**
+
 1. Iniciando cluster de Kubernetes:
 
 ```console
@@ -50,6 +73,10 @@ kubectl port-forward svc/linkerd-lab-a 8080:80
 ```console
 linkerd viz tap deploy/linkerd-lab-a
 ```
+
+<p align="center">
+  <img src="docs/img_01.PNG">
+</p>
 
 * Para generar trafico en la malla:
 
