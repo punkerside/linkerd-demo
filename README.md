@@ -1,3 +1,11 @@
+# Elastic Container Service for Kubernetes - Amazon EKS
+
+[![GitHub Tag](https://img.shields.io/github/tag-date/punkerside/linkerd.svg?style=plastic)](https://github.com/punkerside/linkerd/tags/)
+
+<p align="center">
+  <img src="docs/control-plane.png">
+</p>
+
 ## **Prerrequisitos**
 
 ### Binarios instalador:
