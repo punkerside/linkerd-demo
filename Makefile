@@ -1,7 +1,6 @@
 PROJECT     = punkerside
 ENV         = lab
 SERVICE     = linkerd
-DOCKER_USER = punkerside
 
 # minikube
 minikube:
@@ -9,6 +8,9 @@ minikube:
 
 # test app
 release:
+ifndef DOCKER_USER
+	$(error DOCKER_USER is undefined)
+endif
 ifndef DOCKER_PASS
 	$(error DOCKER_PASS is undefined)
 endif
@@ -17,12 +19,15 @@ endif
 	@docker push ${DOCKER_USER}/${PROJECT}-${ENV}-${SERVICE}:latest
 
 deploy:
+ifndef DOCKER_USER
+	$(error DOCKER_USER is undefined)
+endif
 	@export DEPLOY_NAME=${SERVICE}-${ENV} DEPLOY_IMAGE=${DOCKER_USER}/${PROJECT}-${ENV}-${SERVICE}:latest && envsubst < kubernetes/deployment.yaml | kubectl apply -f -
 	@export DEPLOY_NAME=${SERVICE}-${ENV} && envsubst < kubernetes/service.yaml | kubectl apply -f -
 
 # service mesh
 linkerd:
-	@linkerd install | kubectl apply -f -
+	@linkerd install --set proxyInit.runAsRoot=true | kubectl apply -f -
 	@linkerd check
 	@linkerd viz install | kubectl apply -f -
 	@linkerd check
