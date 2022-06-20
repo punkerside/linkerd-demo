@@ -27,6 +27,10 @@
 make minikube
 ```
 
+<p align="center">
+  <img src="docs/img_02.PNG">
+</p>
+
 2. Liberando nueva version de la aplicacion de prueba:
 
 ```console
@@ -38,6 +42,10 @@ make release DOCKER_USER=myUsers DOCKER_PASS=myPassword
 ```console
 make deploy DOCKER_USER=myUsers
 ```
+
+<p align="center">
+  <img src="docs/img_03.PNG">
+</p>
 
 Para validar el servicio desplegado:
 
@@ -56,17 +64,29 @@ curl http://localhost:8080/mesh/linkerd-lab-b
 make linkerd
 ```
 
+<p align="center">
+  <img src="docs/img_04.PNG">
+</p>
+
 5. Agregando aplicacion de prueba a la malla de servicio:
 
 ```console
 make mesh
 ```
 
+<p align="center">
+  <img src="docs/img_05.PNG">
+</p>
+
 * Para exponer servicio en local:
 
 ```console
 kubectl port-forward svc/linkerd-lab-a 8080:80
 ```
+
+<p align="center">
+  <img src="docs/img_06.PNG">
+</p>
 
 * Para monitorear el funcionamiento de la malla:
 
