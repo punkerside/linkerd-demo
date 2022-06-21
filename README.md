@@ -1,4 +1,4 @@
-# Elastic Container Service for Kubernetes - Amazon EKS
+# Service Mesh for Kubernetes - Linkerd
 
 [![GitHub Tag](https://img.shields.io/github/tag-date/punkerside/linkerd.svg?style=plastic)](https://github.com/punkerside/linkerd/tags/)
 
