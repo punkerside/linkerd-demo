@@ -53,6 +53,8 @@ kubectl port-forward svc/service-a 8080:80
 
 ```console
 curl http://localhost:8080/status
+```
+```console
 curl http://localhost:8080/mesh/service-c
 ```
 
@@ -74,6 +76,12 @@ make linkerd
 
 ```console
 make linkerd-viz
+```
+
+Para acceder al Dashboard:
+
+```console
+linkerd viz dashboard
 ```
 
 6. Agregando malla de servicio a la aplicacion de prueba:
