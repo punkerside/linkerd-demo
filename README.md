@@ -8,63 +8,57 @@
 
 ## **Prerrequisitos**
 
-### Binarios instalador:
-
 * [Instalar Docker](https://docs.docker.com/engine/install/)
-* [Instalar Minikube](https://minikube.sigs.k8s.io/docs/start/)
 * [Instalar Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+* [Instalar Helm](https://helm.sh/docs/intro/install/)
 * [Instalar Linkerd](https://linkerd.io/2.11/getting-started/)
-
-### Cuentas creadas:
-
-* [Usuario DockerHub](https://hub.docker.com/signup)
-
-
-## **Variables**
-
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| `DOCKER_USER` | Usuario dockerhub | string | | yes |
-| `DOCKER_PASS` | Contraseña dockerhub | string | | yes |
 
 ## **Uso**
 
-1. Iniciando cluster de Kubernetes:
+1. Desplegar cluster k8s:
 
 ```console
-make minikube
+make cluster
 ```
 
 <p align="center">
-  <img src="docs/img_02.PNG">
+  <img src="docs/img_01.png">
 </p>
 
-2. Liberando nueva version de la aplicacion de prueba:
+2. Liberando imagen de prueba en AWS ECR:
 
 ```console
-make release DOCKER_USER=myUsers DOCKER_PASS=myPassword
-```
-
-3. Desplegando aplicacion de prueba:
-
-```console
-make deploy DOCKER_USER=myUsers
+make release
 ```
 
 <p align="center">
-  <img src="docs/img_03.PNG">
+  <img src="docs/img_02.png">
+</p>
+
+3. Desplegando aplicacion de prueba en AWS EKS:
+
+```console
+make deploy
+```
+
+<p align="center">
+  <img src="docs/img_03.png">
 </p>
 
 Para validar el servicio desplegado:
 
 ```console
-kubectl port-forward svc/linkerd-lab-a 8080:80
+kubectl port-forward svc/service-a 8080:80
 ```
 
 ```console
 curl http://localhost:8080/status
-curl http://localhost:8080/mesh/linkerd-lab-b
+curl http://localhost:8080/mesh/service-c
 ```
+
+<p align="center">
+  <img src="docs/img_04.png">
+</p>
 
 4. Instalando Linkerd:
 
@@ -76,25 +70,21 @@ make linkerd
   <img src="docs/img_04.PNG">
 </p>
 
-5. Agregando aplicacion de prueba a la malla de servicio:
+5. Agregando malla de servicio a la aplicacion de prueba:
 
 ```console
-make mesh
+make add-mesh
 ```
 
 <p align="center">
   <img src="docs/img_05.PNG">
 </p>
 
-* Para exponer servicio en local:
+* Para validar la malla de servicio:
 
 ```console
 kubectl port-forward svc/linkerd-lab-a 8080:80
 ```
-
-<p align="center">
-  <img src="docs/img_06.PNG">
-</p>
 
 * Para monitorear el funcionamiento de la malla:
 
@@ -109,13 +99,13 @@ linkerd viz tap deploy/linkerd-lab-a
 * Para generar trafico en la malla:
 
 ```console
-curl http://localhost:8080/mesh/linkerd-lab-a
-curl http://localhost:8080/mesh/linkerd-lab-b
-curl http://localhost:8080/mesh/linkerd-lab-c
+curl http://localhost:8080/mesh/service-a
+curl http://localhost:8080/mesh/service-b
+curl http://localhost:8080/mesh/service-c
 ```
 
-6. Para eliminar todos los servicios desplegados:
+6. Eliminando todos los recursos:
 
 ```console
-make delete
+make destroy
 ```

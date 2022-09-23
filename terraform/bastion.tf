@@ -40,34 +40,12 @@ resource "aws_security_group" "main" {
 }
 
 # iam
-resource "aws_iam_role" "main" {
-  name = "${var.project}-${var.env}-${var.service}"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      },
-    ]
-  })
-
-  tags = {
-    Name = "${var.project}-${var.env}-${var.service}"
-  }
-}
-
 resource "aws_iam_instance_profile" "main" {
   name = "${var.project}-${var.env}-${var.service}"
   role = aws_iam_role.main.name
 }
 
-resource "aws_iam_role_policy_attachment" "main" {
+resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
   role       = aws_iam_role.main.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }

@@ -4,75 +4,68 @@ PROJECT            = punkerside
 ENV                = lab
 SERVICE            = linkerd
 AWS_DEFAULT_REGION = us-east-1
+K8S_VERSION        = 1.23
 
 # creando cluster k8s
 cluster:
 	@cd terraform/ && \
 	  terraform init
-	@export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} && \
-	cd terraform/ && \
-	  terraform apply \
+	@export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} && cd terraform/ && terraform apply \
 	  -var="project=${PROJECT}" \
 	  -var="env=${ENV}" \
 	  -var="service=${SERVICE}" \
-	-auto-approve
+	  -var="k8s_version=${K8S_VERSION}" -auto-approve
+	@rm -rf ~/.kube/
+	@aws eks update-kubeconfig --name ${PROJECT}-${ENV}-${SERVICE} --region ${AWS_DEFAULT_REGION}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# iniciando cluster
-minikube:
-	@minikube start -p ${PROJECT}-${ENV}-${SERVICE} --driver=docker --kubernetes-version=v1.24.3
-
-# liberando imagen de aplicacion de prueba
+# liberando imagen de prueba
 release:
-ifndef DOCKER_USER
-	$(error DOCKER_USER is undefined)
-endif
-ifndef DOCKER_PASS
-	$(error DOCKER_PASS is undefined)
-endif
-	@docker build -t ${DOCKER_USER}/${PROJECT}-${ENV}-${SERVICE}:latest -f docker/Dockerfile .
-	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-	@docker push ${DOCKER_USER}/${PROJECT}-${ENV}-${SERVICE}:latest
+	@docker build -t $(shell aws sts get-caller-identity | jq -r .Account).dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${PROJECT}-${ENV}-${SERVICE}:latest -f docker/Dockerfile .
+	@aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin $(shell aws sts get-caller-identity | jq -r .Account).dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+	@docker push $(shell aws sts get-caller-identity | jq -r .Account).dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${PROJECT}-${ENV}-${SERVICE}:latest
 
-
-
-
-
-
-
-
-
-
-
+# desplegar aplicacion de prueba
 deploy:
-ifndef DOCKER_USER
-	$(error DOCKER_USER is undefined)
-endif
-	@export DEPLOY_NAME=${SERVICE}-${ENV} DEPLOY_IMAGE=${DOCKER_USER}/${PROJECT}-${ENV}-${SERVICE}:latest && envsubst < kubernetes/deployment.yaml | kubectl apply -f -
-	@export DEPLOY_NAME=${SERVICE}-${ENV} && envsubst < kubernetes/service.yaml | kubectl apply -f -
+	@helm repo add chart-service https://punkerside.github.io/chart-service/charts
+	@helm repo update
+	@helm upgrade -i service-a chart-service/service \
+	  --set name=service-a \
+	  --set spec.containers.containerPort=5000 \
+	  --set spec.containers.probe=/status \
+	  --set spec.containers.periodSeconds=45 \
+	  --set spec.containers.image=$(shell aws sts get-caller-identity | jq -r .Account).dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${PROJECT}-${ENV}-${SERVICE}:latest
+	@helm upgrade -i service-b chart-service/service \
+	  --set name=service-b \
+	  --set spec.containers.containerPort=5000 \
+	  --set spec.containers.probe=/status \
+	  --set spec.containers.periodSeconds=45 \
+	  --set spec.containers.image=$(shell aws sts get-caller-identity | jq -r .Account).dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${PROJECT}-${ENV}-${SERVICE}:latest
+	@helm upgrade -i service-c chart-service/service \
+	  --set name=service-c \
+	  --set spec.containers.containerPort=5000 \
+	  --set spec.containers.probe=/status \
+	  --set spec.containers.periodSeconds=45 \
+	  --set spec.containers.image=$(shell aws sts get-caller-identity | jq -r .Account).dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${PROJECT}-${ENV}-${SERVICE}:latest
 
 # service mesh
 linkerd:
+	@linkerd install --crds | kubectl apply -f -
 	@linkerd install --set proxyInit.runAsRoot=true | kubectl apply -f -
 	@linkerd check
+
+# agregando malla de servicio a la aplicacion de prueba
+add-mesh:
+	@kubectl get deploy -o yaml | linkerd inject - | kubectl apply -f -
+
+# service mesh dashboard
+linkerd-viz:
 	@linkerd viz install | kubectl apply -f -
 	@linkerd check
 
-mesh:
-	@kubectl get deploy -o yaml | linkerd inject - | kubectl apply -f -
-
-# destroy all resources
-delete:
-	@minikube delete -p ${PROJECT}-${ENV}-${SERVICE}
+# eliminando todos los recursos
+destroy:
+	@export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} && cd terraform/ && terraform destroy \
+	  -var="project=${PROJECT}" \
+	  -var="env=${ENV}" \
+	  -var="service=${SERVICE}" \
+	  -var="k8s_version=${K8S_VERSION}" -auto-approve
