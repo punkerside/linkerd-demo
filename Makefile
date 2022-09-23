@@ -1,8 +1,34 @@
 SHELL  := /bin/bash
 
-PROJECT = punkerside
-ENV     = lab
-SERVICE = linkerd
+PROJECT            = punkerside
+ENV                = lab
+SERVICE            = linkerd
+AWS_DEFAULT_REGION = us-east-1
+
+# creando cluster k8s
+cluster:
+	@cd terraform/ && \
+	  terraform init
+	@export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} && \
+	cd terraform/ && \
+	  terraform apply \
+	  -var="project=${PROJECT}" \
+	  -var="env=${ENV}" \
+	  -var="service=${SERVICE}" \
+	-auto-approve
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # iniciando cluster
 minikube:
