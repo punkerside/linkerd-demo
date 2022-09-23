@@ -1,12 +1,14 @@
-PROJECT     = punkerside
-ENV         = lab
-SERVICE     = linkerd
+SHELL  := /bin/bash
 
-# minikube
+PROJECT = punkerside
+ENV     = lab
+SERVICE = linkerd
+
+# iniciando cluster
 minikube:
-	@minikube start -p ${PROJECT}-${ENV}-${SERVICE} --driver=docker --kubernetes-version=v1.23.3
+	@minikube start -p ${PROJECT}-${ENV}-${SERVICE} --driver=docker --kubernetes-version=v1.24.3
 
-# test app
+# liberando imagen de aplicacion de prueba
 release:
 ifndef DOCKER_USER
 	$(error DOCKER_USER is undefined)
@@ -17,6 +19,16 @@ endif
 	@docker build -t ${DOCKER_USER}/${PROJECT}-${ENV}-${SERVICE}:latest -f docker/Dockerfile .
 	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
 	@docker push ${DOCKER_USER}/${PROJECT}-${ENV}-${SERVICE}:latest
+
+
+
+
+
+
+
+
+
+
 
 deploy:
 ifndef DOCKER_USER
