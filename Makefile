@@ -53,14 +53,15 @@ linkerd:
 	@linkerd install --set proxyInit.runAsRoot=true | kubectl apply -f -
 	@linkerd check
 
-# agregando malla de servicio a la aplicacion de prueba
-add-mesh:
-	@kubectl get deploy -o yaml | linkerd inject - | kubectl apply -f -
-
 # service mesh dashboard
 linkerd-viz:
 	@linkerd viz install | kubectl apply -f -
 	@linkerd check
+
+# agregando malla de servicio a la aplicacion de prueba
+inject:
+	@kubectl get deploy -o yaml | linkerd inject - | kubectl apply -f -
+	@kubectl rollout restart deploy
 
 # eliminando todos los recursos
 destroy:

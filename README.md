@@ -70,10 +70,16 @@ make linkerd
   <img src="docs/img_04.PNG">
 </p>
 
-5. Agregando malla de servicio a la aplicacion de prueba:
+5. Activando Dashboard:
 
 ```console
-make add-mesh
+make linkerd-viz
+```
+
+6. Agregando malla de servicio a la aplicacion de prueba:
+
+```console
+make inject
 ```
 
 <p align="center">
@@ -83,13 +89,19 @@ make add-mesh
 * Para validar la malla de servicio:
 
 ```console
-kubectl port-forward svc/linkerd-lab-a 8080:80
+kubectl port-forward svc/service-a 8080:80
 ```
 
 * Para monitorear el funcionamiento de la malla:
 
 ```console
-linkerd viz tap deploy/linkerd-lab-a
+# in
+linkerd viz tap deploy/service-a
+```
+
+```console
+# out
+linkerd viz tap deploy/service-b
 ```
 
 <p align="center">
@@ -104,7 +116,7 @@ curl http://localhost:8080/mesh/service-b
 curl http://localhost:8080/mesh/service-c
 ```
 
-6. Eliminando todos los recursos:
+7. Eliminando todos los recursos:
 
 ```console
 make destroy
